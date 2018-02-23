@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 }
 
 // sql query
-$sql = "INSERT INTO pcEvents (
+$sql = "INSERT INTO fouls (
         team_num,
         match_num,
         type,
