@@ -29,9 +29,11 @@ $sql = "INSERT INTO pcEvents (
         '$_POST[auton]'
 );";
 
+$result = $conn->query($sql);
+
 // execute SQL query
-if ($conn->query($sql) === TRUE) {
-    echo "New record created successfully";
+if ($result === TRUE) {
+    echo $result;
 } else {
     echo "Error: " . $sql . "<br>" . $conn->error;
 }

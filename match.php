@@ -16,28 +16,28 @@
             </div>
             <br>
             <div class="row center-align">
-                <button id="general" class="btn">General</button>
-                <button id="g05" class="btn">G05: Robot overextended</button>
+                <button id="general" class="btn foul">General</button>
+                <button id="g05" class="btn foul">G05: Robot overextended</button>
             </div>
             <div class="row center-align">
-                <button id="g07" class="btn">G07: Bumpers fell off</button>
-                <button id="g09" class="btn">G09: Launching a cube outside of allowed zones</button>
+                <button id="g07" class="btn foul">G07: Bumpers fell off</button>
+                <button id="g09" class="btn foul">G09: Launching a cube outside of allowed zones</button>
             </div>
             <div class="row center-align">
-                <button id="g14" class="btn">G14: Pinning for 5+ seconds</button>
-                <button id="g15" class="btn">G15: Camped in front of opponent's exchange zone</button>
+                <button id="g14" class="btn foul">G14: Pinning for 5+ seconds</button>
+                <button id="g15" class="btn foul">G15: Camped in front of opponent's exchange zone</button>
             </div>
             <div class="row center-align">
-                <button id="g16" class="btn">G16: Contact w/ opponent in null territory</button>
-                <button id="g18" class="btn">G18: Contact w/ opponent in platform zone</button>
+                <button id="g16" class="btn foul">G16: Contact w/ opponent in null territory</button>
+                <button id="g18" class="btn foul">G18: Contact w/ opponent in platform zone</button>
             </div>
             <div class="row center-align">
-                <button id="g22" class="btn">G22: Had more than 1 power cube at a time</button>
-                <button id="human" class="btn">Human Did Something Wrong</button>
+                <button id="g22" class="btn foul">G22: Had more than 1 power cube at a time</button>
+                <button id="human" class="btn foul">Human Did Something Wrong</button>
             </div>
             <div class="row center-align">
-                <button id="yellow_card" class="btn yellow accent-4">Yellow Card</button>
-                <button id="red_card" class="btn red">Red Card</button>
+                <button id="yellow_card" class="btn foul yellow accent-4">Yellow Card</button>
+                <button id="red_card" class="btn foul red">Red Card</button>
             </div>
         </div>
     </div>
@@ -48,16 +48,16 @@
                 <h4 class="center-align">Breakdowns</h4>
             </div>
             <div class="row center-align">
-                <button id="partial" class="btn">Partial Breakdown</button>
-                <button id="never_moved" class="btn">Never Moved</button>
+                <button id="partial" class="btn breakdown">Partial Breakdown</button>
+                <button id="never_moved" class="btn breakdown">Never Moved</button>
             </div>
             <div class="row center-align">
-                <button id="lost_parts" class="btn">Lost Parts</button>
-                <button id="no_auto" class="btn">No Autonomous</button>
+                <button id="lost_parts" class="btn breakdown">Lost Parts</button>
+                <button id="no_auto" class="btn breakdown">No Autonomous</button>
             </div>
             <div class="row center-align">
-                <button id="no_show" class="btn">Didn't Show Up</button>
-                <button id="intermittent" class="btn">Intermittent Breakdowns</button>
+                <button id="no_show" class="btn breakdown">Didn't Show Up</button>
+                <button id="intermittent" class="btn breakdown">Intermittent Breakdowns</button>
             </div>
         </div>
     </div>
@@ -68,16 +68,16 @@
                 <h4 class="center-align">Climbs</h4>
             </div>
             <div class="row center-align">
-                <button id="self_climb_success" class="btn green">Climbed by Itself: Success</button>
-                <button id="self_climb_fail" class="btn red">Climbed by Itself: Failure</button>
+                <button id="self_climb_success" class="btn green climb">Climbed by Itself: Success</button>
+                <button id="self_climb_fail" class="btn red climb">Climbed by Itself: Failure</button>
             </div>
             <div class="row center-align">
-                <button id="hang_climb_success" class="btn green">Hung off Another Bot: Success</button>
-                <button id="hang_climb_fail" class="btn red">Hung off Another Bot: Failure</button>
+                <button id="hang_climb_success" class="btn green climb">Hung off Another Bot: Success</button>
+                <button id="hang_climb_fail" class="btn red climb">Hung off Another Bot: Failure</button>
             </div>
             <div class="row center-align">
-                <button id="platform_success" class="btn green">Climbed Using Platform: Success</button>
-                <button id="platform_fail" class="btn red">Climbed Using Platform: Failure</button>
+                <button id="platform_success" class="btn green climb">Climbed Using Platform: Success</button>
+                <button id="platform_fail" class="btn red climb">Climbed Using Platform: Failure</button>
             </div>
         </div>
     </div>
@@ -223,6 +223,18 @@
         opacity: .5
     });
 
+    $('.foul').on('click', function(e) {
+        $('#foulPopup').modal('close');
+    });
+
+    $('.climb').on('click', function(e) {
+        $('#climbPopup').modal('close');
+    });
+
+    $('.breakdown').on('click', function(e) {
+        $('#breakdownPopup').modal('close');
+    });
+
     /*************/
     /* T I M E R */
     /*************/
@@ -262,6 +274,7 @@
     // for each of the corresponding buttons to submit to the database when the page is loaded
     for (let type in pcEvents) {
         $('#' + type).on('click', function(e) {
+            e.preventDefault();
             var pos = document.getElementById('position').value;
             var time = document.getElementById('match_seconds').value;
             var auton = document.getElementById('auton').value;
