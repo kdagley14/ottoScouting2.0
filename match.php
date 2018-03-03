@@ -1,18 +1,122 @@
 <!DOCTYPE html>
 <script src="jquery-3.3.1.js"></script>
-<script src="easytimer/dist/easytimer.min.js"></script>
+<script src="easytimer/dist/easytimer.js"></script>
+<script type="text/javascript" src="js/materialize.js"></script>
 <html>
 <head>
     <title>Otto Scouting</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/materialize.css">
 </head>
 <body>
-    <div id="timer">00:00:00</div>
-    <button id="auton_done">End Autonomous</button>
-    <form>
-        <button id="end_match" formaction="postmatch.php" onclick="return confirm('Are you sure you want to end the match?');">End Match</button>
-    </form>
-    <p id="last_event">Last Event: </p>
+<div class="container">
+    <div id="foulPopup" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <h4 class="center-align">Fouls</h4>
+            </div>
+            <br>
+            <div class="row center-align">
+                <button id="general" class="btn">General</button>
+                <button id="g05" class="btn">G05: Robot overextended</button>
+            </div>
+            <div class="row center-align">
+                <button id="g07" class="btn">G07: Bumpers fell off</button>
+                <button id="g09" class="btn">G09: Launching a cube outside of allowed zones</button>
+            </div>
+            <div class="row center-align">
+                <button id="g14" class="btn">G14: Pinning for 5+ seconds</button>
+                <button id="g15" class="btn">G15: Camped in front of opponent's exchange zone</button>
+            </div>
+            <div class="row center-align">
+                <button id="g16" class="btn">G16: Contact w/ opponent in null territory</button>
+                <button id="g18" class="btn">G18: Contact w/ opponent in platform zone</button>
+            </div>
+            <div class="row center-align">
+                <button id="g22" class="btn">G22: Had more than 1 power cube at a time</button>
+                <button id="human" class="btn">Human Did Something Wrong</button>
+            </div>
+            <div class="row center-align">
+                <button id="yellow_card" class="btn yellow accent-4">Yellow Card</button>
+                <button id="red_card" class="btn red">Red Card</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="breakdownPopup" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <h4 class="center-align">Breakdowns</h4>
+            </div>
+            <div class="row center-align">
+                <button id="partial" class="btn">Partial Breakdown</button>
+                <button id="never_moved" class="btn">Never Moved</button>
+            </div>
+            <div class="row center-align">
+                <button id="lost_parts" class="btn">Lost Parts</button>
+                <button id="no_auto" class="btn">No Autonomous</button>
+            </div>
+            <div class="row center-align">
+                <button id="no_show" class="btn">Didn't Show Up</button>
+                <button id="intermittent" class="btn">Intermittent Breakdowns</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="climbPopup" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <h4 class="center-align">Climbs</h4>
+            </div>
+            <div class="row center-align">
+                <button id="self_climb_success" class="btn green">Climbed by Itself: Success</button>
+                <button id="self_climb_fail" class="btn red">Climbed by Itself: Failure</button>
+            </div>
+            <div class="row center-align">
+                <button id="hang_climb_success" class="btn green">Hung off Another Bot: Success</button>
+                <button id="hang_climb_fail" class="btn red">Hung off Another Bot: Failure</button>
+            </div>
+            <div class="row center-align">
+                <button id="platform_success" class="btn green">Climbed Using Platform: Success</button>
+                <button id="platform_fail" class="btn red">Climbed Using Platform: Failure</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h4 id="scoutingTeam">You are scouting Team</h4>
+    </div>
+
+    <div class="row">
+        <h5 id="timer" class="col s8">Match Time: 00:00:00</h5>
+        <h5 id="last_event" class="col s4">Last Event: </h5>
+    </div>
+
+    <div class="row">
+        <div class="col s6">
+            <button id="auton_done" class="btn red pulse">End Autonomous</button>
+            <form>
+                <?php
+                   foreach($_POST as $key=>$value) { ?>
+                       <input id="<?php echo $key?>" type="hidden" name="<?php echo $key?>" value="<?php echo $value?>"/>
+                <?php } ?>
+                <button id="end_match" class="btn orange" formaction="index.php" onclick="return confirm('Are you sure you want to end the match?');">End Match</button>
+            </form>
+        </div>
+        <div class="col s6 right-align">
+            <button id="climb" data-target="climbPopup" class="btn modal-trigger">Climb</button>
+            <button id="foul" data-target="foulPopup" class="btn orange modal-trigger">Foul</button>
+            <button id="breakdown" data-target="breakdownPopup" class="btn red modal-trigger">Breakdown</button>
+            <!--<button id="undo" class="btn">Undo Last Event</button>--->
+        </div>
+    </div>
+
+    <div class="row center-align">
+        <h5>Defended:</h5>
+        <button id="oppTeam1Btn" class="btn green darken-2">oppTeam1</button>
+        <button id="oppTeam2Btn" class="btn green darken-2">oppTeam2</button>
+        <button id="oppTeam3Btn" class="btn green darken-2">oppTeam3</button>
+    </div>
+
     <div id="field" class="field">
         <canvas id="fieldPic" height="431" width="850">
             <script>
@@ -54,65 +158,70 @@
                     context.closePath();
 
                     document.getElementById('position').value = "POINT(" + xPos + " " + yPos + ")";
+                    document.getElementById('x').value = xPos;
+                    document.getElementById('y').value = yPos;
                 });
             </script>
         </canvas>
     </div>
+    <br>
 
     <!-- Hidden inputs so we can easily store/access these values -->
-    <input id="team_num" type="hidden" name="team_num" value="1746">
-    <input id="match_num" type="hidden" name="match_num" value="1">
     <input id="type" type="hidden" name="type">
     <input id="position" type="hidden" name="position" value="POINT(1 1)">
+    <input id="x" type="hidden" name="x" value="1">
+    <input id="y" type="hidden" name="y" value="1">
     <input id="last_table" type="hidden" name="last_table">
     <input id="match_seconds" type="hidden" name="match_seconds">
     <input id="auton" type="hidden" name="auton" value="yes">
 
-    <button id="pick" >Pick</button>
-    <button id="throw_success" disabled>Throw Success</button>
-    <button id="throw_fail" disabled>Throw Fail</button>
-    <button id="place" disabled>Place</button>
-    <button id="drop" disabled>Drop</button>
-    <button id="foul">Foul</button>
-    <button id="breakdown">Breakdown</button>
-    <button id="undo">Undo Last Event</button>
-
-    <div id="foulPopup" class="popup">
-        <div class="popup-content">
-            <span class="close">&times;</span>
-            <button id="general">General</button>
-            <button id="g05">G05: Robot overextended</button>
-            <button id="g07">G07: Bumpers fell off</button>
-            <button id="g09">G09: Launching a cube outside of the allowed zones</button>
-            <button id="g14">G14: Pinning for more than 5 seconds</button>
-            <button id="g15">G15: Robot camped in front of opponent's exchange zone</button>
-            <button id="g16">G16: Robot made contact with opponent in null territory</button>
-            <button id="g18">G18: Robot made contact with opponent in the platform zone</button>
-            <button id="g22">G22: Robot possessed more than one power cube at a time</button>
-            <button id="human">Human Did Something Wrong</button>
-            <button id="yellow_card">Yellow Card</button>
-            <button id="red_card">Red Card</button>
-        </div>
+    <div class="section row center-align">
+        <button id="pick" class="btn">Pick</button>
+        <button id="throw_success" class="btn" disabled>Throw Success</button>
+        <button id="throw_fail" class="btn" disabled>Throw Fail</button>
+        <button id="place" class="btn" disabled>Place</button>
+        <button id="drop" class="btn" disabled>Drop</button>
     </div>
-
-    <div id="breakdownPopup" class="popup">
-        <div class="popup-content">
-            <span class="close">&times;</span>
-            <button id="partial">Partial Breakdown</button>
-            <button id="never_moved">Never Moved</button>
-            <button id="lost_parts">Lost Parts</button>
-            <button id="no_auto">No Autonomous</button>
-            <button id="no_show">Didn't Show Up</button>
-            <button id="intermittent">Intermittent Breakdowns</button>
-        </div>
-    </div>
-
+</div>
 </body>
 
 <script>
+
+    /***************/
+    /* S C R I P T */
+    /***************/
     var teamNum = document.getElementById('team_num').value;
     var matchNum = document.getElementById('match_num').value;
     $('#end_match').hide();
+    $('#scoutingTeam').text("You are scouting Team " + teamNum);
+
+    // Load opponent teams on defense buttons
+    $('#oppTeam1Btn').html(document.getElementById('oppTeam1').value);
+    $('#oppTeam2Btn').html(document.getElementById('oppTeam2').value);
+    $('#oppTeam3Btn').html(document.getElementById('oppTeam3').value);
+
+    // Set up based on start event
+    var startEvent = document.getElementById('has_cube').value;
+    document.getElementById('last_event').innerHTML = "Last Event: " + startEvent;
+    if (startEvent == "start_with_cube") {
+        document.getElementById("pick").disabled = true;
+        document.getElementById("throw_success").disabled = false;
+        document.getElementById("throw_fail").disabled = false;
+        document.getElementById("place").disabled = false;
+        document.getElementById("drop").disabled = false;
+    } else {
+        document.getElementById("pick").disabled = false;
+        document.getElementById("throw_success").disabled = true;
+        document.getElementById("throw_fail").disabled = true;
+        document.getElementById("place").disabled = true;
+        document.getElementById("drop").disabled = true;
+    }
+
+    // Set modal actions
+    $('.modal').modal({
+        dismissable: true,
+        opacity: .5
+    });
 
     /*************/
     /* T I M E R */
@@ -121,12 +230,14 @@
     var timer = new Timer();
     timer.start();
     timer.addEventListener('secondsUpdated', function (e) {
-        $('#timer').html(timer.getTimeValues().toString());
+        $('#timer').text("Match Time: " + timer.getTimeValues().toString());
         $('#match_seconds').val(timer.getTotalTimeValues().seconds);
     });
 
 
-    $("#auton_done").on('click',function() {
+    $("#auton_done").on('click touchstart',function(e) {
+        e.stopPropagation();
+        e.preventDefault();
         $(this).hide();
         $('#auton').val('no');
         $('#end_match').show();
@@ -154,8 +265,225 @@
             var pos = document.getElementById('position').value;
             var time = document.getElementById('match_seconds').value;
             var auton = document.getElementById('auton').value;
+            var x = document.getElementById('x').value;
+            var y = document.getElementById('y').value;
+            var typeWithZone = type;
+
+            var alliance = document.getElementById('alliance').value;
+            if (alliance == "blue") {
+                x = 850 - x;
+                y = 431 - y;
+                pos = "POINT(" + x + " " + y + ")";
+            }
+
+            if (type == "pick") {
+                if (x >= 0 && x <= 88 && y >= 110 && y<= 205) {
+                    typeWithZone = "pick_exchange";
+                } else if (x >= 255 && x <= 381 && y >= 102 && y<= 328) {
+                    typeWithZone = "pick_pza";
+                } else if (x >= 469 && x <= 595 && y >= 102 && y<= 328) {
+                    typeWithZone = "pick_pzo";
+                } else if (x >= 733 && x <= 850 && (y >= 0 && y<= 117 || y >= 314 && y<= 431)) {
+                    typeWithZone = "pick_portal";
+                } else if (x >= 135 && x <= 223 && y >= 168 && y<= 262) {
+                    typeWithZone = "pick_pyramid";
+                } else {
+                    typeWithZone = "pick_floor";
+                }
+            } else if (type == "throw_success" || type == "throw_fail" || type == "place") {
+                if (x > 536 && x <= 698 && y >= 0 && y<= 431) {
+                    typeWithZone = type + "_switcho";
+                } else if (x >= 153 && x < 316 && y >= 0 && y<= 431) {
+                    typeWithZone = type + "_switcha";
+                } else if (x >= 316 && x <= 536 && y >= 0 && y<= 431) {
+                    typeWithZone = type + "_scale";
+                } else if (x >= 0 && x <= 88 && y >= 110 && y<= 205) {
+                    typeWithZone = type + "_exchange";
+                }
+            }
+
             $.ajax({
-                url: '/php/insertPCEvent.php',
+                url: 'php/insertPCEvent.php',
+                type: 'POST',
+                dataType:'json',
+                data: {
+                    teamNum: teamNum,
+                    matchNum: matchNum,
+                    type: typeWithZone,
+                    position: pos,
+                    matchSeconds: time,
+                    auton: auton
+                },
+                success: function(msg) {
+                    console.log(data);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                }
+            });
+            document.getElementById('last_table').value = "pcEvents";
+            document.getElementById('last_event').innerHTML = "Last Event: " + typeWithZone;
+            if(type == 'pick') {
+                document.getElementById("pick").disabled = true;
+                document.getElementById("throw_success").disabled = false;
+                document.getElementById("throw_fail").disabled = false;
+                document.getElementById("place").disabled = false;
+                document.getElementById("drop").disabled = false;
+            } else {
+                document.getElementById("pick").disabled = false;
+                document.getElementById("throw_success").disabled = true;
+                document.getElementById("throw_fail").disabled = true;
+                document.getElementById("place").disabled = true;
+                document.getElementById("drop").disabled = true;
+            }
+        });
+    }
+
+    /*****************/
+    /* D E F E N S E */
+    /*****************/
+    $('#oppTeam1Btn').on('click', function(e) {
+        var pos = document.getElementById('position').value;
+        var time = document.getElementById('match_seconds').value;
+        var auton = document.getElementById('auton').value;
+        var oppTeam = document.getElementById('oppTeam1').value;
+        var x = document.getElementById('x').value;
+        var y = document.getElementById('y').value;
+
+        var alliance = document.getElementById('alliance').value;
+        if (alliance == "blue") {
+            x = 850 - x;
+            y = 431 - y;
+            pos = "POINT(" + x + " " + y + ")";
+        }
+
+        $.ajax({
+            url: '/php/insertDefense.php',
+            type: 'POST',
+            dataType:'json',
+            data: {
+                teamNum: teamNum,
+                matchNum: matchNum,
+                teamDefended: oppTeam,
+                position: pos,
+                matchSeconds: time,
+                auton: auton
+            },
+            success: function(msg) {
+                console.log(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+        document.getElementById('last_table').value = "defense";
+        document.getElementById('last_event').innerHTML = "Last Event: " + oppTeam + "_defend";
+    });
+    $('#oppTeam2Btn').on('click', function(e) {
+        var pos = document.getElementById('position').value;
+        var time = document.getElementById('match_seconds').value;
+        var auton = document.getElementById('auton').value;
+        var oppTeam = document.getElementById('oppTeam2').value;
+        var x = document.getElementById('x').value;
+        var y = document.getElementById('y').value;
+
+        var alliance = document.getElementById('alliance').value;
+        if (alliance == "blue") {
+            x = 850 - x;
+            y = 431 - y;
+            pos = "POINT(" + x + " " + y + ")";
+        }
+
+        $.ajax({
+            url: '/php/insertDefense.php',
+            type: 'POST',
+            dataType:'json',
+            data: {
+                teamNum: teamNum,
+                matchNum: matchNum,
+                teamDefended: oppTeam,
+                position: pos,
+                matchSeconds: time,
+                auton: auton
+            },
+            success: function(msg) {
+                console.log(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+        document.getElementById('last_table').value = "defense";
+        document.getElementById('last_event').innerHTML = "Last Event: " + oppTeam + "_defend";
+    });
+    $('#oppTeam3Btn').on('click', function(e) {
+        var pos = document.getElementById('position').value;
+        var time = document.getElementById('match_seconds').value;
+        var auton = document.getElementById('auton').value;
+        var oppTeam = document.getElementById('oppTeam3').value;
+        var x = document.getElementById('x').value;
+        var y = document.getElementById('y').value;
+
+        var alliance = document.getElementById('alliance').value;
+        if (alliance == "blue") {
+            x = 850 - x;
+            y = 431 - y;
+            pos = "POINT(" + x + " " + y + ")";
+        }
+
+        $.ajax({
+            url: '/php/insertDefense.php',
+            type: 'POST',
+            dataType:'json',
+            data: {
+                teamNum: teamNum,
+                matchNum: matchNum,
+                teamDefended: oppTeam,
+                position: pos,
+                matchSeconds: time,
+                auton: auton
+            },
+            success: function(msg) {
+                console.log(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+        document.getElementById('last_table').value = "defense";
+        document.getElementById('last_event').innerHTML = "Last Event: " + oppTeam + "_defend";
+    });
+
+    /***************/
+    /* C L I M B S */
+    /***************/
+
+    var climbs = {
+        self_climb_success: 'self_climb_success',
+        self_climb_fail: 'self_climb_fail',
+        hang_climb_success: 'hang_climb_success',
+        hang_climb_fail: 'hang_climb_fail',
+        platform_success: 'platform_success',
+        platform_fail: 'platform_fail'
+    };
+
+    for (let type in climbs) {
+        $('#' + type).on('click', function(e) {
+            var pos = document.getElementById('position').value;
+            var time = document.getElementById('match_seconds').value;
+            var auton = document.getElementById('auton').value;
+            var x = document.getElementById('x').value;
+            var y = document.getElementById('y').value;
+
+            var alliance = document.getElementById('alliance').value;
+            if (alliance == "blue") {
+                x = 850 - x;
+                y = 431 - y;
+                pos = "POINT(" + x + " " + y + ")";
+            }
+
+            $.ajax({
+                url: '/php/insertClimb.php',
                 type: 'POST',
                 dataType:'json',
                 data: {
@@ -173,46 +501,14 @@
                     alert(xhr.responseText);
                 }
             });
-            document.getElementById('last_table').value = "pcEvents";
+            document.getElementById('last_table').value = "climbs";
             document.getElementById('last_event').innerHTML = "Last Event: " + type;
-            if(type == 'pick') {
-                document.getElementById("pick").disabled = true;
-                document.getElementById("throw_success").disabled = false;
-                document.getElementById("throw_fail").disabled = false;
-                document.getElementById("place").disabled = false;
-                document.getElementById("drop").disabled = false;
-            } else {
-                document.getElementById("pick").disabled = false;
-                document.getElementById("throw_success").disabled = true;
-                document.getElementById("throw_fail").disabled = true;
-                document.getElementById("place").disabled = true;
-                document.getElementById("drop").disabled = true;
-            }
         });
     }
 
     /*************/
     /* F O U L S */
     /*************/
-
-    var foulPopup = document.getElementById('foulPopup');
-    var foulBtn = document.getElementById("foul");
-    var closeFouls = document.getElementsByClassName("close")[0];
-
-    // When the user clicks the button, open the popup
-    foulBtn.onclick = function() {
-        foulPopup.style.display = "block";
-    }
-    // When the user clicks on <span> (x), close the popup
-    closeFouls.onclick = function() {
-        foulPopup.style.display = "none";
-    }
-    // When the user clicks anywhere outside of the popup, close it
-    window.onclick = function(event) {
-        if (event.target == foulPopup) {
-            foulPopup.style.display = "none";
-        }
-    }
 
     var fouls = {
         general: 'general',
@@ -234,6 +530,15 @@
             var pos = document.getElementById('position').value;
             var time = document.getElementById('match_seconds').value;
             var auton = document.getElementById('auton').value;
+            var x = document.getElementById('x').value;
+            var y = document.getElementById('y').value;
+
+            var alliance = document.getElementById('alliance').value;
+            if (alliance == "blue") {
+                x = 850 - x;
+                y = 431 - y;
+                pos = "POINT(" + x + " " + y + ")";
+            }
             $.ajax({
                 url: '/php/insertFoul.php',
                 type: 'POST',
@@ -262,25 +567,6 @@
     /* B R E A K D O W N S */
     /***********************/
 
-    var breakdownPopup = document.getElementById('breakdownPopup');
-    var breakdownBtn = document.getElementById("breakdown");
-    var closeBreakdowns = document.getElementsByClassName("close")[1];
-
-    // When the user clicks the button, open the popup
-    breakdownBtn.onclick = function() {
-        breakdownPopup.style.display = "block";
-    }
-    // When the user clicks on <span> (x), close the popup
-    closeBreakdowns.onclick = function() {
-        breakdownPopup.style.display = "none";
-    }
-    // When the user clicks anywhere outside of the popup, close it
-    window.onclick = function(event) {
-        if (event.target == breakdownPopup) {
-            breakdownPopup.style.display = "none";
-        }
-    }
-
     var breakdowns = {
         partial: 'partial',
         never_moved: 'never_moved',
@@ -295,6 +581,16 @@
             var pos = document.getElementById('position').value;
             var time = document.getElementById('match_seconds').value;
             var auton = document.getElementById('auton').value;
+            var x = document.getElementById('x').value;
+            var y = document.getElementById('y').value;
+
+            var alliance = document.getElementById('alliance').value;
+            if (alliance == "blue") {
+                x = 850 - x;
+                y = 431 - y;
+                pos = "POINT(" + x + " " + y + ")";
+            }
+
             $.ajax({
                 url: '/php/insertBreakdown.php',
                 type: 'POST',
