@@ -35,6 +35,10 @@
         <h4 id="scoutingTeam">You are scouting Team</h4>
     </div>
 
+    <div class="center-align row">
+        <img id="robotPic" onerror="this.src='images/error.jpg'" style="max-height:500px;max-width:500px;">
+    </div>
+
     <div class="center-align section">
         <h5>Select the robot's starting position:</h5>
     </div>
@@ -80,6 +84,8 @@
                     context.closePath();
 
                     document.getElementById('position').value = "POINT(" + xPos + " " + yPos + ")";
+                    document.getElementById('x').value = xPos;
+                    document.getElementById('y').value = yPos;
                     $('#afterPos').show();
                 });
             </script>
@@ -96,6 +102,8 @@
             <h6 id="hasCubeMsg"></h6>
         </div>
 
+        <input id="x" type="hidden" name="x" value="1">
+        <input id="y" type="hidden" name="y" value="1">
         <div id="start" class="center-align" style="display:none;">
             <button id="startPos" class="btn">Save</button>
             <form id="form" action="match.php" method="post" class="center-align section" style="display:none;">
@@ -170,6 +178,7 @@
                     $('#display_team').html(element);
                     $('#scoutingTeam').text("You are scouting Team " + response[team]);
                     $('#teamPopup').hide();
+                    document.getElementById('robotPic').src = "images/" + response[team] + ".jpg";
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
@@ -184,6 +193,16 @@
         var startEvent = document.getElementById('has_cube').value;
         var matchNum = document.getElementById('match_num').value;
         var teamNum = document.getElementById('team_num').value;
+        var x = document.getElementById('x').value;
+        var y = document.getElementById('y').value;
+
+        var alliance = document.getElementById('alliance').value;
+        if (alliance == "blue") {
+            x = 850 - x;
+            y = 431 - y;
+            pos = "POINT(" + x + " " + y + ")";
+        }
+        
         $.ajax({
             url: 'php/insertPCEvent.php',
             type: 'POST',
@@ -192,7 +211,9 @@
                 teamNum: teamNum,
                 matchNum: matchNum,
                 type: startEvent,
-                position: pos
+                position: pos,
+                x: x,
+                y: y
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(xhr.responseText);

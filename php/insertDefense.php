@@ -19,14 +19,18 @@ $sql = "INSERT INTO defense (
         team_defended,
         position,
         match_time,
-        auton
+        auton,
+        x,
+        y
     ) VALUES (
         '$_POST[teamNum]',
         '$_POST[matchNum]',
         '$_POST[teamDefended]',
         POINTFROMTEXT('$_POST[position]'),
         '$_POST[matchSeconds]',
-        '$_POST[auton]'
+        '$_POST[auton]',
+        '$_POST[x]',
+        '$_POST[y]'
 );";
 
 $result = $conn->query($sql);

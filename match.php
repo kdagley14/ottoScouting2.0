@@ -59,6 +59,9 @@
                 <button id="no_show" class="btn breakdown">Didn't Show Up</button>
                 <button id="intermittent" class="btn breakdown">Intermittent Breakdowns</button>
             </div>
+            <div class="row center-align">
+                <button id="fell_over" class="btn breakdown">Fell Over</button>
+            </div>
         </div>
     </div>
 
@@ -76,8 +79,8 @@
                 <button id="hang_climb_fail" class="btn red climb">Hung off Another Bot: Failure</button>
             </div>
             <div class="row center-align">
-                <button id="platform_success" class="btn green climb">Climbed Using Platform: Success</button>
-                <button id="platform_fail" class="btn red climb">Climbed Using Platform: Failure</button>
+                <button id="platform_success" class="btn green climb">Finished on Platform: Success</button>
+                <button id="platform_fail" class="btn red climb">Didn't Finish on Platform: Failure</button>
             </div>
         </div>
     </div>
@@ -103,18 +106,18 @@
             </form>
         </div>
         <div class="col s6 right-align">
-            <button id="climb" data-target="climbPopup" class="btn modal-trigger">Climb</button>
-            <button id="foul" data-target="foulPopup" class="btn orange modal-trigger">Foul</button>
-            <button id="breakdown" data-target="breakdownPopup" class="btn red modal-trigger">Breakdown</button>
+            <button id="climb" data-target="climbPopup" class="btn modal-trigger reset">Climb</button>
+            <button id="foul" data-target="foulPopup" class="btn orange modal-trigger reset">Foul</button>
+            <button id="breakdown" data-target="breakdownPopup" class="btn red modal-trigger reset">Breakdown</button>
             <!--<button id="undo" class="btn">Undo Last Event</button>--->
         </div>
     </div>
 
     <div class="row center-align">
         <h5>Defended:</h5>
-        <button id="oppTeam1Btn" class="btn green darken-2">oppTeam1</button>
-        <button id="oppTeam2Btn" class="btn green darken-2">oppTeam2</button>
-        <button id="oppTeam3Btn" class="btn green darken-2">oppTeam3</button>
+        <button id="oppTeam1Btn" class="btn green darken-2 reset">oppTeam1</button>
+        <button id="oppTeam2Btn" class="btn green darken-2 reset">oppTeam2</button>
+        <button id="oppTeam3Btn" class="btn green darken-2 reset">oppTeam3</button>
     </div>
 
     <div id="field" class="field">
@@ -160,6 +163,27 @@
                     document.getElementById('position').value = "POINT(" + xPos + " " + yPos + ")";
                     document.getElementById('x').value = xPos;
                     document.getElementById('y').value = yPos;
+
+                    var lastPCEvent = document.getElementById('last_pc_event').value;
+                    if (lastPCEvent == "start_with_cube" || lastPCEvent.indexOf("pick") != -1) {
+                        document.getElementById("pick").disabled = true;
+                        document.getElementById("throw_success").disabled = false;
+                        document.getElementById("throw_fail").disabled = false;
+                        document.getElementById("place").disabled = false;
+                        document.getElementById("drop").disabled = false;
+                    } else {
+                        document.getElementById("pick").disabled = false;
+                        document.getElementById("throw_success").disabled = true;
+                        document.getElementById("throw_fail").disabled = true;
+                        document.getElementById("place").disabled = true;
+                        document.getElementById("drop").disabled = true;
+                    }
+                    document.getElementById("oppTeam1Btn").disabled = false;
+                    document.getElementById("oppTeam2Btn").disabled = false;
+                    document.getElementById("oppTeam3Btn").disabled = false;
+                    document.getElementById("climb").disabled = false;
+                    document.getElementById("foul").disabled = false;
+                    document.getElementById("breakdown").disabled = false;
                 });
             </script>
         </canvas>
@@ -174,13 +198,14 @@
     <input id="last_table" type="hidden" name="last_table">
     <input id="match_seconds" type="hidden" name="match_seconds">
     <input id="auton" type="hidden" name="auton" value="yes">
+    <input id="last_pc_event" type="hidden" name="hidden">
 
     <div class="section row center-align">
-        <button id="pick" class="btn">Pick</button>
-        <button id="throw_success" class="btn" disabled>Throw Success</button>
-        <button id="throw_fail" class="btn" disabled>Throw Fail</button>
-        <button id="place" class="btn" disabled>Place</button>
-        <button id="drop" class="btn" disabled>Drop</button>
+        <button id="pick" class="btn reset">Pick</button>
+        <button id="throw_success" class="btn reset" disabled>Throw Success</button>
+        <button id="throw_fail" class="btn reset" disabled>Throw Fail</button>
+        <button id="place" class="btn reset" disabled>Place</button>
+        <button id="drop" class="btn reset" disabled>Drop</button>
     </div>
 </div>
 </body>
@@ -200,22 +225,23 @@
     $('#oppTeam2Btn').html(document.getElementById('oppTeam2').value);
     $('#oppTeam3Btn').html(document.getElementById('oppTeam3').value);
 
-    // Set up based on start event
+    // Set up last event
     var startEvent = document.getElementById('has_cube').value;
+    document.getElementById('last_pc_event').value = startEvent;
     document.getElementById('last_event').innerHTML = "Last Event: " + startEvent;
-    if (startEvent == "start_with_cube") {
-        document.getElementById("pick").disabled = true;
-        document.getElementById("throw_success").disabled = false;
-        document.getElementById("throw_fail").disabled = false;
-        document.getElementById("place").disabled = false;
-        document.getElementById("drop").disabled = false;
-    } else {
-        document.getElementById("pick").disabled = false;
-        document.getElementById("throw_success").disabled = true;
-        document.getElementById("throw_fail").disabled = true;
-        document.getElementById("place").disabled = true;
-        document.getElementById("drop").disabled = true;
-    }
+
+    // Disable action buttons on start
+    document.getElementById("pick").disabled = true;
+    document.getElementById("throw_success").disabled = true;
+    document.getElementById("throw_fail").disabled = true;
+    document.getElementById("place").disabled = true;
+    document.getElementById("drop").disabled = true;
+    document.getElementById("oppTeam1Btn").disabled = true;
+    document.getElementById("oppTeam2Btn").disabled = true;
+    document.getElementById("oppTeam3Btn").disabled = true;
+    document.getElementById("climb").disabled = true;
+    document.getElementById("foul").disabled = true;
+    document.getElementById("breakdown").disabled = true;
 
     // Set modal actions
     $('.modal').modal({
@@ -235,6 +261,27 @@
         $('#breakdownPopup').modal('close');
     });
 
+    // Clear position on field and disable buttons after an action button is clicked
+    $('.reset').on('click', function(e) {
+        var canvas = document.getElementById("botPosition");
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        document.getElementById("pick").disabled = true;
+        document.getElementById("throw_success").disabled = true;
+        document.getElementById("throw_fail").disabled = true;
+        document.getElementById("place").disabled = true;
+        document.getElementById("drop").disabled = true;
+
+        document.getElementById("oppTeam1Btn").disabled = true;
+        document.getElementById("oppTeam2Btn").disabled = true;
+        document.getElementById("oppTeam3Btn").disabled = true;
+
+        document.getElementById("climb").disabled = true;
+        document.getElementById("foul").disabled = true;
+        document.getElementById("breakdown").disabled = true;
+    });
+
     /*************/
     /* T I M E R */
     /*************/
@@ -244,6 +291,11 @@
     timer.addEventListener('secondsUpdated', function (e) {
         $('#timer').text("Match Time: " + timer.getTimeValues().toString());
         $('#match_seconds').val(timer.getTotalTimeValues().seconds);
+        if (timer.getTimeValues().seconds == 20) {
+            $('#auton_done').hide();
+            $('#auton').val('no');
+            $('#end_match').show();
+        }
     });
 
 
@@ -325,7 +377,9 @@
                     type: typeWithZone,
                     position: pos,
                     matchSeconds: time,
-                    auton: auton
+                    auton: auton,
+                    x: x,
+                    y: y
                 },
                 success: function(msg) {
                     console.log(data);
@@ -336,19 +390,7 @@
             });
             document.getElementById('last_table').value = "pcEvents";
             document.getElementById('last_event').innerHTML = "Last Event: " + typeWithZone;
-            if(type == 'pick') {
-                document.getElementById("pick").disabled = true;
-                document.getElementById("throw_success").disabled = false;
-                document.getElementById("throw_fail").disabled = false;
-                document.getElementById("place").disabled = false;
-                document.getElementById("drop").disabled = false;
-            } else {
-                document.getElementById("pick").disabled = false;
-                document.getElementById("throw_success").disabled = true;
-                document.getElementById("throw_fail").disabled = true;
-                document.getElementById("place").disabled = true;
-                document.getElementById("drop").disabled = true;
-            }
+            document.getElementById('last_pc_event').value = typeWithZone;
         });
     }
 
@@ -380,7 +422,9 @@
                 teamDefended: oppTeam,
                 position: pos,
                 matchSeconds: time,
-                auton: auton
+                auton: auton,
+                x: x,
+                y: y
             },
             success: function(msg) {
                 console.log(data);
@@ -417,7 +461,9 @@
                 teamDefended: oppTeam,
                 position: pos,
                 matchSeconds: time,
-                auton: auton
+                auton: auton,
+                x: x,
+                y: y
             },
             success: function(msg) {
                 console.log(data);
@@ -454,7 +500,9 @@
                 teamDefended: oppTeam,
                 position: pos,
                 matchSeconds: time,
-                auton: auton
+                auton: auton,
+                x: x,
+                y: y
             },
             success: function(msg) {
                 console.log(data);
@@ -505,7 +553,9 @@
                     type: type,
                     position: pos,
                     matchSeconds: time,
-                    auton: auton
+                    auton: auton,
+                    x: x,
+                    y: y
                 },
                 success: function(msg) {
                     console.log(data);
@@ -562,7 +612,9 @@
                     type: type,
                     position: pos,
                     matchSeconds: time,
-                    auton: auton
+                    auton: auton,
+                    x: x,
+                    y: y
                 },
                 success: function(msg) {
                     console.log(data);
@@ -586,7 +638,8 @@
         lost_parts: 'lost_parts',
         no_auto: 'no_auto',
         no_show: 'no_show',
-        intermittent: 'intermittent'
+        intermittent: 'intermittent',
+        fell_over: 'fell_over'
     };
 
     for (let type in breakdowns) {
@@ -614,7 +667,9 @@
                     type: type,
                     position: pos,
                     matchSeconds: time,
-                    auton: auton
+                    auton: auton,
+                    x: x,
+                    y: y
                 },
                 success: function(msg) {
                     console.log(data);

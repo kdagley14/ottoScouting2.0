@@ -21,7 +21,7 @@ $opts = array(
 $context = stream_context_create($opts);
 
 // Open the file using the HTTP headers set above
-$json = file_get_contents('http://www.thebluealliance.com/api/v3/event/2018week0/matches', false, $context);
+$json = file_get_contents('http://www.thebluealliance.com/api/v3/event/2018gagai/matches', false, $context);
 $data = json_decode($json);
 
 

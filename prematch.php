@@ -98,7 +98,7 @@
 
         <div id="start" class="center-align" style="display:none;">
             <button id="startPos" class="btn">Save</button>
-            <form id="form" action="match.php" method="post" class="center-align section" style="display:none;">
+            <form id="form" action="matchTest.php" method="post" class="center-align section" style="display:none;">
                 <div id=display_team></div>
                 <input name="has_cube" id="has_cube" type="hidden">
                 <input name="match_num" id="match_num" type="hidden">
