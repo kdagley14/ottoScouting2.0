@@ -17,20 +17,16 @@ $sql = "INSERT INTO climbs (
         team_num,
         match_num,
         type,
-        position,
-        match_time,
-        auton,
-        x,
-        y
+        success,
+        bots_lifted,
+        scout_name
     ) VALUES (
         '$_POST[teamNum]',
         '$_POST[matchNum]',
         '$_POST[type]',
-        POINTFROMTEXT('$_POST[position]'),
-        '$_POST[matchSeconds]',
-        '$_POST[auton]',
-        '$_POST[x]',
-        '$_POST[y]'
+        '$_POST[success]',
+        '$_POST[botsLifted]',
+        '$_POST[scoutName]'
 );";
 
 $result = $conn->query($sql);

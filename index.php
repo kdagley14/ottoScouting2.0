@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<script src="jquery-3.3.1.js"></script>
-<script type="text/javascript" src="js/materialize.js"></script>
 <html>
 <head>
     <title>Otto Scouting</title>
     <link rel="stylesheet" href="css/materialize.css">
 </head>
 <body>
+
 <div class="container">
     <div id="teamPopup" class="modal" style="display:block;">
         <div class="modal-content">
             <h4 class="center-align">Choose the Assigned Scouting Location</h4>
+            <h5>Scout Name</h5>
+            <div class="row input-field">
+                <select id="display_scouts">
+                </select>
+            </div>
             <h5>Match Number</h5>
             <div class="row">
                 <input id="matchNum" class="col s3" type="number">
             </div>
             <h5 id="allianceHeader">Alliance</h5>
             <div class="row">
-                <button class="btn" id="red" onclick="changeAlliance('red')">Red Alliance</button>
-                <button class="btn" id="blue" onclick="changeAlliance('blue')">Blue Alliance</button>
+                <button class="btn" id="red">Red Alliance</button>
+                <button class="btn" id="blue">Blue Alliance</button>
             </div>
             <h5 id="teamSlotHeader">Team Slot</h5>
             <div class="row">
-                <button class="btn" id="team1" onclick="changeTeamSlot(1)">1</button>
-                <button class="btn" id="team2" onclick="changeTeamSlot(2)">2</button>
-                <button class="btn" id="team3" onclick="changeTeamSlot(3)">3</button>
+                <button class="btn" id="team1">1</button>
+                <button class="btn" id="team2">2</button>
+                <button class="btn" id="team3">3</button>
             </div>
             <h5 style="color:red;" id="error"></h5>
             <button class="btn center-align" id="getTeam">Save</button>
@@ -112,6 +116,7 @@
                 <input name="match_num" id="match_num" type="hidden">
                 <input type="hidden" id="alliance" name="alliance">
                 <input type="hidden" id="teamSlot" name="teamSlot">
+                <input type="hidden" id="scoutName" name="scoutName">
                 <input id="startMatch" class="btn red" type="submit" value="Start Match">
             </form>
         </div>
@@ -119,110 +124,67 @@
 </div>
 </body>
 
+<script src="jquery-3.3.1.js"></script>
+<script type="text/javascript" src="js/materialize.js"></script>
+<script src="js/prematch.js"></script>
 <script>
-    function showDiv() {
-        document.getElementById('powerCubeDiv').style.display = "block";
+    var $_POST = <?php echo json_encode($_POST); ?>;
+
+    // Try to autopopulate match number, alliance, and team slot if possible
+    if ($_POST["match_num"] != null) {
+        $('#matchNum').val(parseInt($_POST["match_num"], 10) + 1);
     }
-
-    function changeAlliance(color) {
-        $('#alliance').val(color);
-        $('#allianceHeader').html("Alliance - " + color.toUpperCase());
-    }
-
-    function changeTeamSlot(num) {
-        $('#teamSlot').val(num);
-        $('#teamSlotHeader').html("Team Slot - " + num);
-    }
-
-    var teamPopup = document.getElementById('teamPopup');
-    var getTeamBtn = document.getElementById('getTeam');
-
-
-    $('#botCube').on('click', function(e) {
-        $('#hasCubeMsg').text("Robot IS starting with power cube");
-        $('#has_cube').val("start_with_cube");
-        $('#start').show();
-    });
-
-    $('#botNoCube').on('click', function(e) {
-        $('#hasCubeMsg').text("Robot IS NOT starting with power cube");
-        $('#has_cube').val("start_no_cube");
-        $('#start').show();
-    });
-
-    // Get the team from the match schedule in the database
-    $('#getTeam').on('click', function(e) {
-        e.preventDefault();
-        var alliance = document.getElementById('alliance').value;
-        var teamSlot = document.getElementById('teamSlot').value;
-        var matchNum = document.getElementById('matchNum').value;
-        if (alliance == "" || teamSlot == "" || matchNum == "") {
-            $('#error').html("Please fill out all the fields.");
+    if ($_POST["alliance"] != null) {
+        $('#alliance').val($_POST["alliance"]);
+        if ($_POST["alliance"] == "red") {
+            $('#red').addClass("teal darken-3");
         } else {
-            document.getElementById('match_num').value = matchNum;
-            $.ajax({
-                url: 'php/getTeam.php',
-                type: 'POST',
-                dataType:'json',
-                data: {
-                    matchNum: matchNum
-                },
-                success: function(response) {
-                    var team = alliance + "_" + teamSlot;
-                    var element = "<input type='hidden' name='team_num' id='team_num' value='" + response[team] + "'>";
-                    if (alliance == "red") {
-                        element += "<input type='hidden' name='oppTeam1' id='oppTeam1' value='" + response["blue_1"] + "'><input type='hidden' name='oppTeam2' id='oppTeam2' value='" + response["blue_2"] + "'><input type='hidden' name='oppTeam3' id='oppTeam3' value='" + response["blue_3"] + "'>";
-                    } else {
-                        element += "<input type='hidden' name='oppTeam1' id='oppTeam1' value='" + response["red_1"] + "'><input type='hidden' name='oppTeam2' id='oppTeam2' value='" + response["red_2"] + "'><input type='hidden' name='oppTeam3' id='oppTeam3' value='" + response["red_3"] + "'>";
-                    }
-                    $('#display_team').html(element);
-                    $('#scoutingTeam').text("You are scouting Team " + response[team]);
-                    $('#teamPopup').hide();
-                    document.getElementById('robotPic').src = "images/" + response[team] + ".jpg";
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.responseText);
-                }
-            });
+            $('#blue').addClass("teal darken-3");
         }
-    });
-
-    // Add the starting position into the database as a pcEvent
-    $('#startPos').on('click', function(e) {
-        var pos = document.getElementById('position').value;
-        var startEvent = document.getElementById('has_cube').value;
-        var matchNum = document.getElementById('match_num').value;
-        var teamNum = document.getElementById('team_num').value;
-        var x = document.getElementById('x').value;
-        var y = document.getElementById('y').value;
-
-        var alliance = document.getElementById('alliance').value;
-        if (alliance == "blue") {
-            x = 850 - x;
-            y = 431 - y;
-            pos = "POINT(" + x + " " + y + ")";
+    }
+    if ($_POST["teamSlot"] != null) {
+        $('#teamSlot').val($_POST["teamSlot"]);
+        if ($_POST["teamSlot"] == "1") {
+            $('#team1').addClass("teal darken-3");
+        } else if($_POST["teamSlot"] == "2") {
+            $('#team2').addClass("teal darken-3");
+        } else {
+            $('#team3').addClass("teal darken-3");
         }
-        
+    }
+
+    // Load the scout names from the database
+    $(document).ready(function() {
         $.ajax({
-            url: 'php/insertPCEvent.php',
+            url: 'php/getScouts.php',
             type: 'POST',
             dataType:'json',
-            data: {
-                teamNum: teamNum,
-                matchNum: matchNum,
-                type: startEvent,
-                position: pos,
-                x: x,
-                y: y
+            success: function(response) {
+                // Try to autopopulate name
+                var element;
+                var scout;
+                if ($_POST["scoutName"] != null) {
+                    scout = $_POST["scoutName"];
+                } else {
+                    element += "<option id='no_name' value='' disabled selected>Select your name</option>";
+                }
+
+                for(var i = 0; i < response.length; i++) {
+                    var name = response[i];
+                    element += "<option id='" + name.split(" ").join("") + "' value='" + name + "'";
+                    if (name == scout) {
+                        element += " selected";
+                    }
+                    element +=">" + name + "</option>";
+                }
+                $('#display_scouts').append(element);
+                $('select').material_select();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(xhr.responseText);
             }
         });
-        $('#startPos').hide();
-        $('#form').show();
     });
-
 </script>
 
 </html>

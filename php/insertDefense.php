@@ -16,21 +16,21 @@ if ($conn->connect_error) {
 $sql = "INSERT INTO defense (
         team_num,
         match_num,
-        team_defended,
         position,
         match_time,
         auton,
         x,
-        y
+        y,
+        scout_name
     ) VALUES (
         '$_POST[teamNum]',
         '$_POST[matchNum]',
-        '$_POST[teamDefended]',
         POINTFROMTEXT('$_POST[position]'),
         '$_POST[matchSeconds]',
         '$_POST[auton]',
         '$_POST[x]',
-        '$_POST[y]'
+        '$_POST[y]',
+        '$_POST[scoutName]'
 );";
 
 $result = $conn->query($sql);

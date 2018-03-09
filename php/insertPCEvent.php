@@ -21,7 +21,8 @@ $sql = "INSERT INTO pcEvents (
         match_time,
         auton,
         x,
-        y
+        y,
+        scout_name
     ) VALUES (
         '$_POST[teamNum]',
         '$_POST[matchNum]',
@@ -30,7 +31,8 @@ $sql = "INSERT INTO pcEvents (
         '$_POST[matchSeconds]',
         '$_POST[auton]',
         '$_POST[x]',
-        '$_POST[y]'
+        '$_POST[y]',
+        '$_POST[scoutName]'
 );";
 
 $result = $conn->query($sql);

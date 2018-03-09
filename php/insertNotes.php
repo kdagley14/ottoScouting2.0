@@ -13,25 +13,15 @@ if ($conn->connect_error) {
 }
 
 // sql query
-$sql = "INSERT INTO breakdowns (
+$sql = "INSERT INTO matchNotes (
         team_num,
         match_num,
-        type,
-        position,
-        match_time,
-        auton,
-        x,
-        y,
+        notes,
         scout_name
     ) VALUES (
         '$_POST[teamNum]',
         '$_POST[matchNum]',
-        '$_POST[type]',
-        POINTFROMTEXT('$_POST[position]'),
-        '$_POST[matchSeconds]',
-        '$_POST[auton]',
-        '$_POST[x]',
-        '$_POST[y]',
+        '$_POST[notes]',
         '$_POST[scoutName]'
 );";
 
